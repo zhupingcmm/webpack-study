@@ -1,6 +1,6 @@
 # 研究webpack 
 ## 分析
-###初级分析
+### 初级分析
 stats: 构建的统计信息
 
 在package.json中使用stats
@@ -11,7 +11,7 @@ stats: 构建的统计信息
     }
   ```
 
-###构建速度的分析
+### 构建速度的分析
 使用 speed-measure-webpack-plugin
 
     
