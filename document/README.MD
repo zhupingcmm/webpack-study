@@ -5,11 +5,11 @@ stats: 构建的统计信息
 
 在package.json中使用stats
 
-  `
+  ```
     "script":{
       "build:stats":"webpack --env production --json >stats.json"
     }
-  `
+  ```
 
 ###构建速度的分析
 使用 speed-measure-webpack-plugin
@@ -85,7 +85,8 @@ stats: 构建的统计信息
     
     缓存思路：
      
-      * 1.3.1 babel-loader 开启缓存
+     * 1.3.1 babel-loader 开启缓存
+      
       {
           loader: "babel-loader",
           options:{
@@ -93,7 +94,7 @@ stats: 构建的统计信息
           }
       }
        
-      terser-webpack-plugin 开启缓存
+     * 1.3.2 terser-webpack-plugin 开启缓存
   
       optimization: {
       minimize: true,
@@ -102,65 +103,76 @@ stats: 构建的统计信息
           cache: true,
         }),
           ]},
-      使用 cache-loader 或者 hard-source-webpack-plugin
+          
+     * 1.3.3 使用 cache-loader 或者 hard-source-webpack-plugin
+* 1.4 缩小构建目标
 
-分包
-1. 设置Externals:
-    思路将React reactdom 基础包通过cdn的方式引入，不打bundle中
+     目的：尽可能的少构建模块
+      
+     * 1.4.1 比如babel-loader 不解析node_module
+      
+      module.exports ={
+          rules: {
+              test: /\.js$/,
+              loader: "babel-loader",
+              exclude : 'node_modules'
+          }
+      }
+      
+     * 1.4.2 减少文件搜索范围
+      
+     * 1.4.3 优化 resolve.modules 配置(减少模块搜索层级)
+      
+     * 1.4.4 优化 resolve.mainFields 配置
+      
+     * 1.4.5 优化 resolve.extensions 配置
+      
+     * 1.4.6 合理使用 alias
+      
+      moudle.exports={
+          resolve:{
+              alias:{
+                  react: path.resolve(__dirname, './node_modules/react/dist/react.min.js')
+              },
+              modules: [path.resolve(__dirname, 'node_modules')],
+              extensions: ['js'],
+              mainFields: ['main']
+          }
+      }     
+
+### 构建体积优化
+#### 分包
+* 1.1 设置Externals:
+
+    思路：将React reactdom 基础包通过cdn的方式引入，不打bundle中
+    
     方法：使用html-webpack-external-plugin
+    
     不足之处：一个基础包就需要一个cdn
-2. splitChunks
+    
+* 1.2 splitChunks
 
-3. 预编译资源模块
+* 1.3 预编译资源模块
+
     思路： 将react react-dom redux react-redux 基础包和业务包打成一个文件
+    
     方法： 使用DLLPlugin进行分包，DllReferencePlugin 对mainfast.json引用
 
-    3.1 编写一个全新的webpack config file 
+    * 1.3.1 编写一个全新的webpack config file
+     
       利用 webpack.DllPlugin 对基础包进行打包
-    3.2 在webpack config file 中引用刚才打包的文件
+      
+    * 1.3.2 在webpack config file 中引用刚才打包的文件
+    
       配置 webpack.DllReferencePlugin 引用 刚才打出来的包
-    3.3 利用 add-asset-html-webpack-plugin 添加 刚才打出来的js到HTML文件中
+      
+    * 1.3.3 利用 add-asset-html-webpack-plugin 添加 刚才打出来的js到HTML文件中
 
+#### 图片压缩
 
-
-缩小构建目标
-目的：尽可能的少构建模块
-比如babel-loader 不解析node_module
-module.exports ={
-    rules: {
-        test: /\.js$/,
-        loader: "babel-loader",
-        exclude : 'node_modules'
-    }
-}
-
-减少文件搜索范围
-
-优化 resolve.modules 配置(减少模块搜索层级)
-
-优化 resolve.mainFields 配置
-
-优化 resolve.extensions 配置
-
-合理使用 alias
-
-moudle.exports={
-    resolve:{
-        alias:{
-            react: path.resolve(__dirname, './node_modules/react/dist/react.min.js')
-        },
-        modules: [path.resolve(__dirname, 'node_modules')],
-        extensions: ['js'],
-        mainFields: ['main']
-    }
-}
-
-
-图片压缩
 要求：基于Node库的imagemin或者tinypng API
 
 使用：配置image-webpack-loader
 
-    
 
 
