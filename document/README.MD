@@ -1,68 +1,108 @@
-初级分析
+# 研究webpack 
+## 分析
+###初级分析
 stats: 构建的统计信息
+
 在package.json中使用stats
-"script":{
-  "build:stats":"webpack --env production --json >stats.json"
-}
 
-
-构建速度的分析
-使用 speed-measure-webpack-plugin
-    const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
-    
-    const smp = new SpeedMeasurePlugin();
-    
-    const webpackConfig = smp.wrap({
-    plugins: [
-        new MyPlugin(),
-        new MyOtherPlugin()
-    ]
-    });
-
- 构建体积的分析
- 使用 webpack-bundle-analyzer
-    const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
- 
-    module.exports = {
-    plugins: [
-        new BundleAnalyzerPlugin()
-    ]
+  `
+    "script":{
+      "build:stats":"webpack --env production --json >stats.json"
     }
+  `
 
+###构建速度的分析
+使用 speed-measure-webpack-plugin
 
-优化:
-1. css 优化
-   1.1 檫除无用的css代码
+    
+        const smp = new SpeedMeasurePlugin();       
+        const webpackConfig = smp.wrap({
+        plugins: [
+            new MyPlugin(),
+            new MyOtherPlugin()
+        ]
+        });
+    
+
+### 构建体积的分析
+ 使用 webpack-bundle-analyzer
+ 
+     module.exports = {
+         plugins: [
+             new BundleAnalyzerPlugin()
+         ]
+     }
+ 
+
+##优化:
+### css 优化
+   * 1.1 檫除无用的css代码
+   
        PurifyCSS:遍历代码，识别已经用到的css class
+       
        使用 purgecss-webpack-plugin 和 mini-css-extract-plugin配合使用
-        1.1.1 定义常量
-        const PATHS ={
-            src: path.join(__dirname, 'src')
-            }
+        * 1.1.1 定义常量
+        
+            const PATHS ={src: path.join(__dirname, 'src')}
 
-        1.1.2 在plugins 数组中添加
+        * 1.1.2 在plugins 数组中添加
+        
         new MiniCssExtractPlugin({
             filename:'[name]_[contenthash:8].css'
         }),
+        
         //檫除无用的css样式
+        
         new PurgecssPlugin({
             paths: glob.sync(`${PATHS.src}/**/*`,  { nodir: true }),
         }),
-   2.1 css 代码压缩
+        
+   * 2.1 css 代码压缩
+ 
        使用optimize-css-assets-webpack-plugin
-
+       
          new OptimizeCSSAssetsPlugin({
             assetNameRegExp: /\.css$/g,
-            cssProcessor: require("cssnano")
-        })
+            cssProcessor: require("cssnano")})
 
-多进程/多实例构建: 资源并行解析可选方案
-thread-loader 官方推荐
-parallel-webpack
-HappyPack 作者不维护了
+### 构建速度优化
 
-多进程/多实例： 并行压缩
-terser-webpack-plugin 开启parallel 参数
+* 1.1 多进程/多实例构建: 资源并行解析可选方案
+
+  thread-loader 官方推荐
+        
+  parallel-webpack
+  
+  HappyPack 作者不维护了
+
+* 1.2多进程/多实例： 并行压缩
+
+  terser-webpack-plugin 开启parallel 参数
+  
+* 1.3 缓存
+
+    目的： 提升二次构建速度
+    
+    缓存思路：
+     
+      * 1.3.1 babel-loader 开启缓存
+      {
+          loader: "babel-loader",
+          options:{
+            cacheDirectory: true
+          }
+      }
+       
+      terser-webpack-plugin 开启缓存
+  
+      optimization: {
+      minimize: true,
+      minimizer: [
+        new TerserPlugin({
+          cache: true,
+        }),
+          ]},
+      使用 cache-loader 或者 hard-source-webpack-plugin
 
 分包
 1. 设置Externals:
@@ -81,27 +121,7 @@ terser-webpack-plugin 开启parallel 参数
       配置 webpack.DllReferencePlugin 引用 刚才打出来的包
     3.3 利用 add-asset-html-webpack-plugin 添加 刚才打出来的js到HTML文件中
 
-缓存
-  目的： 提升二次构建速度
-  缓存思路： 
-    babel-loader 开启缓存
-    {
-        loader: "babel-loader",
-        options:{
-          cacheDirectory: true
-        }
-    }
-     
-    terser-webpack-plugin 开启缓存
 
-    optimization: {
-    minimize: true,
-    minimizer: [
-      new TerserPlugin({
-        cache: true,
-      }),
-        ]},
-    使用 cache-loader 或者 hard-source-webpack-plugin
 
 缩小构建目标
 目的：尽可能的少构建模块
