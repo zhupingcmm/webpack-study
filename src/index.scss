@@ -1,7 +1,21 @@
 .search-box{
     background-color: red;
+    font-family: 'Courier New';
 }
 
 .unUse{
+    font-family: fantasy;
     font-size: 300px;
+}
+
+.test{
+    font-size: 22px;
+}
+
+a{
+    clear: both;
+}
+
+span{
+    color: red($color: #000000);
 }

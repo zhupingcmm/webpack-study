@@ -50,9 +50,12 @@ module.exports={
             {
                 test:/\.scss$/,
                 use:[
+                    
                     MiniCssExtractPlugin.loader,
+                   
                     // "style-loader",
                     "css-loader",
+                    path.resolve('./loaders/replace-css-loader.js'),
                     'sass-loader'
                 ]    
             },
@@ -100,7 +103,7 @@ module.exports={
             filepath: path.resolve(__dirname, 'build/library/*.dll.js'),
         }),
         //模块缓存
-        new HardSourceWebpackPlugin()
+        // new HardSourceWebpackPlugin()
     ],
     optimization:{
         minimize: true,
