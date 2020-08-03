@@ -4,10 +4,16 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const webpack = require("webpack");
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const AddAssetHtmlPlugin = require('add-asset-html-webpack-plugin');
+const {setSMA} = require('./weboack.com.js');
+
+const {entry, htmlWebpackPlugins} = setSMA();
+
+console.log("entry::",entry);
+
+console.log("htmlWebpackPlugins:::",htmlWebpackPlugins)
+
 module.exports={
-    entry:{
-        index:"./src/index.js",
-    },
+    entry:entry,
     output:{
         path:__dirname+"/dist",
         filename:"[name]_[hash:8].js"
@@ -43,10 +49,10 @@ module.exports={
     },
     plugins:[
         new CleanWebpackPlugin(),
-        new HtmlWebpackPlugin({
-            filename:'index.html',
-            template:'./src/index.html'
-        }),
+        // new HtmlWebpackPlugin({
+        //     filename:'index.html',
+        //     template:'./src/index.html'
+        // }),
         new webpack.HotModuleReplacementPlugin(),
         new MiniCssExtractPlugin({
             filename:'[name]_[contenthash:8].css'
@@ -57,10 +63,10 @@ module.exports={
         new AddAssetHtmlPlugin({
             filepath: path.resolve(__dirname, 'build/library/*.dll.js'),
         }),
-    ],
+    ].concat(htmlWebpackPlugins),
     devServer:{
         contentBase:__dirname + "/dist",
-        port:9001,
+        port:9000,
         open:true,
         hot:true
     }

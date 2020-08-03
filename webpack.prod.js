@@ -11,15 +11,40 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPl
 const TerserPlugin = require("terser-webpack-plugin");
 const AddAssetHtmlPlugin = require('add-asset-html-webpack-plugin');
 const HardSourceWebpackPlugin = require("hard-source-webpack-plugin");
+const {setSMA} = require('./weboack.com.js')
 
 const PATHS ={
     src: path.join(__dirname, 'src')
 }
 const smp = new SpeedMeasurePlugin();
+
+// const setSMA = () => {
+//     const entry={};
+//     const htmlWebpackPlugins = [];
+//     let entryFiles = glob.sync(path.join(__dirname,'/src/*/index.js'));
+//     for(let item of entryFiles){
+//         const match = item.match(/src\/(.*)\/index.js/);
+//         const pageName = match && match[1];
+//         entry[pageName] = path.join(__dirname,`./src/${pageName}/index.js`);
+
+//         htmlWebpackPlugins.push(new HtmlWebpackPlugin({
+//             filename:`${pageName}.html`,
+//             template:`./src/${pageName}/index.html`
+//         }))
+
+//     }
+
+//     return {
+//         entry,
+//         htmlWebpackPlugins
+//     }
+// }
+
+const {entry, htmlWebpackPlugins} = setSMA();
+
+
 module.exports={
-    entry:{
-        index:"./src/index.js"
-    },
+    entry:entry,
     output:{
         path:__dirname+"/dist",
         filename:"[name]_[hash:8].js"
@@ -74,10 +99,10 @@ module.exports={
     plugins:[
         new CleanWebpackPlugin(),
         //打包html文件
-        new HtmlWebpackPlugin({
-            filename:'index.html',
-            template:'./src/index.html'
-        }),
+        // new HtmlWebpackPlugin({
+        //     filename:'index.html',
+        //     template:'./src/index.html'
+        // }),
         new webpack.HotModuleReplacementPlugin(),
         //把css样式从js文件中分离出来
         new MiniCssExtractPlugin({
@@ -104,7 +129,7 @@ module.exports={
         }),
         //模块缓存
         // new HardSourceWebpackPlugin()
-    ],
+    ].concat(htmlWebpackPlugins),
     optimization:{
         minimize: true,
         //代码并行压缩
