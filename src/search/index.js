@@ -1,11 +1,17 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import Details from "./details";
+import {Provider} from "react-redux";
+import { store } from "./redux-study";
+
 
 function App(props){
+
+    console.log("store::",store.getState())
     return(
-        <div>
-            search
-        </div>
+        <Provider store={store}>
+            <Details/>
+        </Provider>
     )
 }
 
